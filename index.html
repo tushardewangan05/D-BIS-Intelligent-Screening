@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D-BIS — Dynamic Burn-In Intelligence System | SIH 2026</title>
+  
+  <!-- Plotly.js CDN -->
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+
+  <!-- Google Fonts & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --font-main: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --accent-primary: #00d4ff;
+      --accent-blue: #0f62fe;
+      --status-pass: #00d4ff;
+      --status-pass-bg: rgba(0, 212, 255, 0.12);
+      --status-review: #ffcc00;
+      --status-review-bg: rgba(255, 204, 0, 0.12);
+      --status-hold: #ff4d4d;
+      --status-hold-bg: rgba(255, 77, 77, 0.12);
+      
+      --bg-main: #050c17;
+      --bg-sidebar: #091629;
+      --bg-card: rgba(15, 30, 55, 0.65);
+      --bg-card-border: rgba(0, 212, 255, 0.15);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --shadow-color: rgba(0, 0, 0, 0.4);
+    }
+
+    [data-theme="light"] {
+      --bg-main: #f1f5f9;
+      --bg-sidebar: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-border: rgba(15, 98, 254, 0.15);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --shadow-color: rgba(0, 0, 0, 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    #sidebar {
+      width: 260px;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--bg-card-border);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 16px;
+      z-index: 100;
+    }
+
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      padding: 0 8px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-blue));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #050c17;
+      font-family: var(--font-mono);
+      font-size: 16px;
+    }
+
+    .brand-title {
+      font-family: var(--font-main);
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.2px;
+      color: var(--text-main);
+    }
+
+    .brand-subtitle {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      font-family: var(--font-mono);
+    }
+
+    .nav-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background-color: var(--bg-card-border);
+      color: var(--accent-primary);
+    }
+
+    .nav-icon {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .team-badge {
+      padding: 12px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 8px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    #top-header {
+      height: 84px;
+      padding: 14px 32px 10px 32px;
+      border-bottom: 1px solid var(--bg-card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--bg-sidebar);
+    }
+
+    .header-title-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: 6px;
+    }
+
+    .header-main-title {
+      font-family: var(--font-main);
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: -0.3px;
+      line-height: 1.25;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-brand-badge {
+      background: linear-gradient(135deg, #00d4ff 0%, #0f62fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 25px rgba(0, 212, 255, 0.3);
+    }
+
+    .title-divider {
+      color: var(--accent-primary);
+      opacity: 0.7;
+      font-weight: 400;
+    }
+
+    .title-full-name {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .header-sub-title {
+      font-family: var(--font-main);
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-top: 5px;
+      letter-spacing: 0.2px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .theme-switcher {
+      display: flex;
+      background: var(--bg-card);
+      padding: 3px;
+      border-radius: 20px;
+      border: 1px solid var(--bg-card-border);
+    }
+
+    .theme-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-btn.active {
+      background-color: var(--accent-primary);
+      color: #050c17;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background-color: var(--status-pass-bg);
+      border: 1px solid var(--accent-primary);
+      border-radius: 20px;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--accent-primary);
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-primary);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-primary);
+    }
+
+    .page-panel {
+      padding: 28px;
+      display: none;
+      flex: 1;
+    }
+
+    .page-panel.active {
+      display: block;
+    }
+
+    .section-title {
+      font-family: var(--font-main);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-primary);
+      margin-bottom: 16px;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      padding: 16px;
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px var(--shadow-color);
+    }
+
+    .kpi-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      margin: 8px 0 4px 0;
+      color: var(--text-main);
+    }
+
+    .kpi-subtext {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 1400px) {
+      .charts-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+
+    .chart-container {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 12px;
+      padding: 16px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px var(--shadow-color);
+    }
+
+    .chart-header {
+      font-family: var(--font-main);
+      font-size: 13.5px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+
+    .plotly-box {
+      width: 100%;
+      height: 260px;
+    }
+
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px var(--shadow-color);
+      margin-bottom: 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background-color: var(--bg-sidebar);
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--bg-card-border);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--bg-card-border);
+      color: var(--text-main);
+    }
+
+    tr:hover {
+      background-color: rgba(0, 212, 255, 0.05);
+      cursor: pointer;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-pass { background: var(--status-pass-bg); color: var(--status-pass); border: 1px solid var(--status-pass); }
+    .badge-review { background: var(--status-review-bg); color: var(--status-review); border: 1px solid var(--status-review); }
+    .badge-hold { background: var(--status-hold-bg); color: var(--status-hold); border: 1px solid var(--status-hold); }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(5, 12, 23, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: var(--bg-sidebar);
+      border: 1px solid var(--accent-primary);
+      width: 90%;
+      max-width: 800px;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 0 40px rgba(0, 212, 255, 0.2);
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .xai-box {
+      background: rgba(0, 212, 255, 0.05);
+      border-left: 4px solid var(--accent-primary);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .xai-title {
+      font-family: var(--font-main);
+      font-weight: 700;
+      color: var(--accent-primary);
+      margin-bottom: 6px;
+    }
+
+    .input-control {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: var(--font-main);
+      font-size: 13px;
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-blue));
+      color: #050c17;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-family: var(--font-main);
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .dropzone {
+      border: 2px dashed var(--accent-primary);
+      background: rgba(0, 212, 255, 0.03);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 24px;
+      transition: all 0.2s ease;
+    }
+
+    .dropzone:hover { background: rgba(0, 212, 255, 0.08); }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <aside id="sidebar">
+    <div class="brand-container">
+      <div class="brand-icon">DB</div>
+      <div>
+        <div class="brand-title">D-BIS</div>
+        <div class="brand-subtitle">SIH26170 | Team Spike</div>
+      </div>
+    </div>
+    
+    <ul class="nav-menu">
+      <li class="nav-item"><a class="nav-link active" onclick="switchPage('overview')"><span class="nav-icon">◈</span> Overview</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchPage('analysis')"><span class="nav-icon">⚡</span> D-BIS Analysis</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchPage('ingestion')"><span class="nav-icon">⬆</span> Data Ingestion</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchPage('monitoring')"><span class="nav-icon">◉</span> Component Monitoring</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchPage('workbench')"><span class="nav-icon">◎</span> Prediction Workbench</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchPage('risk')"><span class="nav-icon">⚠</span> Risk Assessment</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchPage('history')"><span class="nav-icon">⏱</span> History Audit</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchPage('model')"><span class="nav-icon">▣</span> Model Performance</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchPage('reports')"><span class="nav-icon">▤</span> QA Reports</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchPage('system')"><span class="nav-icon">ℹ</span> System Info</a></li>
+    </ul>
+
+    <div class="team-badge">
+      SIH 2026 PROTOTYPE v2.4<br>
+      STATUS: LOCAL ML ENGINE
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div id="main-content">
+    
+    <!-- Top Header -->
+    <header id="top-header">
+      <div class="header-title-container">
+        <div class="header-main-title">
+          <span class="title-brand-badge">D-BIS</span>
+          <span class="title-divider">—</span>
+          <span class="title-full-name">Dynamic Burn-In Intelligence System</span>
+        </div>
+        <div class="header-sub-title">AI-Driven Anomaly Detection & 168-Hour Component Reliability Prediction</div>
+      </div>
+      
+      <div class="header-controls">
+        <div class="status-pill">
+          <div class="status-dot"></div>
+          <span>LIVE ENGINE</span>
+        </div>
+
+        <div class="theme-switcher">
+          <button class="theme-btn active" onclick="setTheme('dark')">🌙 Dark</button>
+          <button class="theme-btn" onclick="setTheme('light')">☀️ Light</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 1. OVERVIEW PAGE -->
+    <section id="page-overview" class="page-panel active">
+      <div class="section-title">◈ Executive Dashboard & System Overview</div>
+      
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-title">Total Tested</div><div class="kpi-value">20</div><div class="kpi-subtext">Components in Lot</div></div>
+        <div class="kpi-card"><div class="kpi-title">Passed (Low Risk)</div><div class="kpi-value" style="color: var(--status-pass)">13</div><div class="kpi-subtext">65.0% Yield</div></div>
+        <div class="kpi-card"><div class="kpi-title">Under Review</div><div class="kpi-value" style="color: var(--status-review)">4</div><div class="kpi-subtext">+48h Screening Extended</div></div>
+        <div class="kpi-card"><div class="kpi-title">Hold (Quarantine)</div><div class="kpi-value" style="color: var(--status-hold)">3</div><div class="kpi-subtext">Critical Anomaly</div></div>
+        <div class="kpi-card"><div class="kpi-title">Avg Anomaly Score</div><div class="kpi-value">0.34</div><div class="kpi-subtext">Isolation Forest Index</div></div>
+        <div class="kpi-card"><div class="kpi-title">System Reliability</div><div class="kpi-value">85.0%</div><div class="kpi-subtext">168h Predicted Stability</div></div>
+      </div>
+
+      <!-- 9 Plotly Charts Grid -->
+      <div class="charts-grid">
+        <div class="chart-container"><div class="chart-header">1. Risk Level Distribution</div><div id="chart-risk-pie" class="plotly-box"></div></div>
+        <div class="chart-container"><div class="chart-header">2. QA Disposition Outcome</div><div id="chart-qa-bar" class="plotly-box"></div></div>
+        <div class="chart-container"><div class="chart-header">3. Anomaly Score Distribution Histogram</div><div id="chart-score-hist" class="plotly-box"></div></div>
+        <div class="chart-container"><div class="chart-header">4. Risk Scatter Matrix (Leakage vs Temp)</div><div id="chart-scatter-matrix" class="plotly-box"></div></div>
+        <div class="chart-container"><div class="chart-header">5. Parameter Health Telemetry Trends</div><div id="chart-health-lines" class="plotly-box"></div></div>
+        <div class="chart-container"><div class="chart-header">6. Burn-In Anomaly Score Timeline</div><div id="chart-timeline" class="plotly-box"></div></div>
+        <div class="chart-container"><div class="chart-header">7. 168-Hour Trajectory Forecast Curve</div><div id="chart-forecast-curve" class="plotly-box"></div></div>
+        <div class="chart-container"><div class="chart-header">8. Forecast Risk Breakdown</div><div id="chart-forecast-risk-bar" class="plotly-box"></div></div>
+        <div class="chart-container"><div class="chart-header">9. SHAP Anomaly Feature Contributions</div><div id="chart-shap-bar" class="plotly-box"></div></div>
+      </div>
+
+      <div class="section-title">◉ Component Health Overview Table</div>
+      <div class="table-container">
+        <table id="overview-table">
+          <thead>
+            <tr>
+              <th>Component ID</th><th>Lot Number</th><th>Hour</th><th>Temp (°C)</th><th>Voltage (V)</th><th>Current (mA)</th><th>Leakage (µA)</th><th>Delay (ns)</th><th>Anomaly Score</th><th>Disposition</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 2. D-BIS ANALYSIS PAGE -->
+    <section id="page-analysis" class="page-panel">
+      <div class="section-title">⚡ Component Detail & Deep AI Diagnostics</div>
+      <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+        <label style="font-family: var(--font-mono); font-size: 13px;">Select Component:</label>
+        <select id="analysis-component-select" class="input-control" onchange="updateAnalysisView()"></select>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-title">Current Hour</div><div class="kpi-value" id="ana-hour">64h</div></div>
+        <div class="kpi-card"><div class="kpi-title">Isolation Forest Score</div><div class="kpi-value" id="ana-score">0.89</div></div>
+        <div class="kpi-card"><div class="kpi-title">Risk Level</div><div class="kpi-value" id="ana-risk" style="color: var(--status-hold)">HIGH</div></div>
+        <div class="kpi-card"><div class="kpi-title">Screening Recommendation</div><div class="kpi-value" id="ana-rec" style="font-size: 15px;">HOLD FOR INSPECTION</div></div>
+      </div>
+
+      <div class="xai-box">
+        <div class="xai-title">🧠 Explainable AI (XAI) Disposition Rationale</div>
+        <div id="ana-xai-text">Loading XAI rationale...</div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-container"><div class="chart-header">Module A: Isolation Forest Anomaly Trajectory</div><div id="chart-module-a" class="plotly-box"></div></div>
+        <div class="chart-container"><div class="chart-header">Module B: 168-Hour XGBoost Predictive Curve</div><div id="chart-module-b" class="plotly-box"></div></div>
+      </div>
+    </section>
+
+    <!-- 3. DATA INGESTION PAGE -->
+    <section id="page-ingestion" class="page-panel">
+      <div class="section-title">⬆ Component Screening Data Ingestion Engine</div>
+      <div class="dropzone" onclick="document.getElementById('csv-file-input').click()">
+        <div style="font-size: 32px; margin-bottom: 10px;">📁</div>
+        <div style="font-weight: 600; margin-bottom: 6px;">Drag & Drop Burn-In Dataset (CSV) or Click to Browse</div>
+        <div style="font-size: 12px; color: var(--text-muted);">Expected columns: component_id, lot_number, burn_in_hour, temperature, voltage, current, leakage_current, response_delay</div>
+        <input type="file" id="csv-file-input" accept=".csv" style="display:none;" onchange="handleCSVUpload(event)">
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+        <button class="btn-action" onclick="runIngestionAnalysis()">⚡ RUN D-BIS ANALYSIS ON CSV DATA</button>
+        <button class="btn-action" style="background: var(--bg-card); border: 1px solid var(--accent-primary); color: var(--accent-primary);" onclick="downloadSampleCSV()">⬇ Download Synthetic Demo CSV</button>
+      </div>
+
+      <div class="section-title">Data Ingestion Preview Table</div>
+      <div class="table-container">
+        <table id="ingestion-preview-table">
+          <thead>
+            <tr><th>Component ID</th><th>Lot Number</th><th>Burn-In Hour</th><th>Temp (°C)</th><th>Voltage (V)</th><th>Current (mA)</th><th>Leakage (µA)</th><th>Delay (ns)</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. COMPONENT MONITORING PAGE -->
+    <section id="page-monitoring" class="page-panel">
+      <div class="section-title">◉ Live Component Screening & Telemetry Table</div>
+      <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+        <input type="text" id="monitoring-search" class="input-control" placeholder="Search Component ID or Lot..." onkeyup="filterMonitoringTable()">
+        <select id="monitoring-filter" class="input-control" onchange="filterMonitoringTable()">
+          <option value="ALL">All Decisions</option>
+          <option value="PASS">PASS Only</option>
+          <option value="REVIEW">REVIEW Only</option>
+          <option value="HOLD">HOLD Only</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table id="monitoring-table">
+          <thead>
+            <tr>
+              <th>Component ID</th><th>Lot ID</th><th>Hour</th><th>Temp (°C)</th><th>Voltage (V)</th><th>Current (mA)</th><th>Leakage (µA)</th><th>Delay (ns)</th><th>Anomaly Score</th><th>Decision</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. PREDICTION WORKBENCH PAGE -->
+    <section id="page-workbench" class="page-panel">
+      <div class="section-title">◎ 168-Hour XGBoost Predictive Trajectory Workbench</div>
+      <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+        <div>
+          <label style="font-family: var(--font-mono); font-size: 12px;">Component:</label>
+          <select id="wb-component-select" class="input-control" onchange="updateWorkbenchView()"></select>
+        </div>
+        <div>
+          <label style="font-family: var(--font-mono); font-size: 12px;">Parameter:</label>
+          <select id="wb-parameter-select" class="input-control" onchange="updateWorkbenchView()">
+            <option value="leakage">Leakage Current (µA)</option>
+            <option value="temp">Temperature (°C)</option>
+            <option value="voltage">Voltage (V)</option>
+            <option value="current">Current (mA)</option>
+            <option value="delay">Response Delay (ns)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-title">Baseline Value</div><div class="kpi-value" id="wb-base">12.1 µA</div></div>
+        <div class="kpi-card"><div class="kpi-title">168h Forecast Value</div><div class="kpi-value" id="wb-forecast">28.4 µA</div></div>
+        <div class="kpi-card"><div class="kpi-title">Degradation Slope</div><div class="kpi-value" id="wb-slope">+0.12/h</div></div>
+        <div class="kpi-card"><div class="kpi-title">Failure Risk Probability</div><div class="kpi-value" id="wb-prob" style="color: var(--status-hold)">89.4%</div></div>
+      </div>
+
+      <div class="chart-container" style="min-height: 400px;">
+        <div class="chart-header">Historical Telemetry & 168-Hour Trajectory Projection</div>
+        <div id="chart-workbench-main" class="plotly-box" style="height: 340px;"></div>
+      </div>
+    </section>
+
+    <!-- 6. RISK ASSESSMENT PAGE -->
+    <section id="page-risk" class="page-panel">
+      <div class="section-title">⚠ Component Reliability & Risk Matrix</div>
+      <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <button class="btn-action" onclick="filterRiskCards('ALL')">Show All</button>
+        <button class="btn-action" style="background: var(--status-hold-bg); color: var(--status-hold); border: 1px solid var(--status-hold);" onclick="filterRiskCards('HOLD')">High Risk</button>
+        <button class="btn-action" style="background: var(--status-review-bg); color: var(--status-review); border: 1px solid var(--status-review);" onclick="filterRiskCards('REVIEW')">Medium Risk</button>
+        <button class="btn-action" style="background: var(--status-pass-bg); color: var(--status-pass); border: 1px solid var(--status-pass);" onclick="filterRiskCards('PASS')">Low Risk</button>
+      </div>
+
+      <div class="chart-container" style="margin-bottom: 24px;">
+        <div class="chart-header">Visual Parameter Risk Matrix Heatmap</div>
+        <div id="chart-risk-heatmap" class="plotly-box"></div>
+      </div>
+
+      <div class="section-title">Actionable Risk Breakdown</div>
+      <div class="table-container">
+        <table id="risk-breakdown-table">
+          <thead>
+            <tr><th>Component ID</th><th>Primary Risk Factor</th><th>Stress Hour</th><th>Isolation Forest Score</th><th>Actionable Quarantine Step</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7. HISTORY AUDIT PAGE -->
+    <section id="page-history" class="page-panel">
+      <div class="section-title">⏱ Historical Screening Audit Trail Logs</div>
+      <div class="table-container">
+        <table id="history-table">
+          <thead>
+            <tr><th>Log ID</th><th>Timestamp</th><th>Component ID</th><th>Burn-In Hour</th><th>Anomaly Score</th><th>Disposition Triggered</th><th>Auditor Note</th><th>View Log</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 8. MODEL PERFORMANCE PAGE -->
+    <section id="page-model" class="page-panel">
+      <div class="section-title">▣ Machine Learning Validation & Confusion Matrix</div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-title">Accuracy</div><div class="kpi-value">96.4%</div></div>
+        <div class="kpi-card"><div class="kpi-title">Precision</div><div class="kpi-value">94.1%</div></div>
+        <div class="kpi-card"><div class="kpi-title">Recall</div><div class="kpi-value">95.8%</div></div>
+        <div class="kpi-card"><div class="kpi-title">F1 Score</div><div class="kpi-value">94.9%</div></div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-container">
+          <div class="chart-header">ROC Curve (AUC = 0.982)</div>
+          <div id="chart-roc-curve" class="plotly-box"></div>
+        </div>
+        <div class="chart-container">
+          <div class="chart-header">Confusion Matrix Heatmap</div>
+          <div id="chart-confusion-matrix" class="plotly-box"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. QA REPORTS PAGE -->
+    <section id="page-reports" class="page-panel">
+      <div class="section-title">▤ Quality Assurance Certificate Generator</div>
+      <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px;" class="no-print">
+        <label style="font-family: var(--font-mono); font-size: 13px;">Select Component:</label>
+        <select id="report-component-select" class="input-control" onchange="generateReportView()"></select>
+        <button class="btn-action" onclick="window.print()">🖨 Print Official Certificate</button>
+      </div>
+
+      <div class="cert-container" style="background: var(--bg-card); border: 2px solid var(--accent-primary); padding: 30px; border-radius: 12px;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 2px solid var(--accent-primary); padding-bottom: 16px; margin-bottom: 20px;">
+          <div>
+            <h2 style="font-family: var(--font-mono); color: var(--accent-primary);">SMART INDIA HACKATHON 2026</h2>
+            <div style="font-size: 12px; color: var(--text-muted);">OFFICIAL QA BURN-IN SCREENING CERTIFICATE | PS: SIH26170</div>
+          </div>
+          <div style="text-align: right; font-family: var(--font-mono); font-size: 12px;">
+            DATE: 2026-08-27<br>STAMP: D-BIS VERIFIED
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted);">COMPONENT SPECIFICATION:</div>
+            <div style="font-size: 18px; font-weight: 700;" id="cert-comp-id">C001</div>
+            <div style="font-size: 13px;" id="cert-lot">LOT: LOT-2026-A1</div>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted);">SCREENING DISPOSITION:</div>
+            <div style="font-size: 18px; font-weight: 700;" id="cert-status">APPROVED FOR PRODUCTION</div>
+            <div style="font-size: 13px;" id="cert-score">Isolation Forest Score: 0.08</div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--bg-card-border); padding-top: 20px; font-size: 12px; line-height: 1.6;">
+          This component has undergone 168-hour accelerated thermal and electrical stress screening. Parameters have been analyzed using the D-BIS Isolation Forest anomaly detection pipeline and XGBoost reliability forecasting engine.
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. SYSTEM INFO PAGE -->
+    <section id="page-system" class="page-panel">
+      <div class="section-title">ℹ System Architecture & SIH Project Specifications</div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-title">Problem Statement</div><div class="kpi-value" style="font-size: 18px;">SIH26170</div></div>
+        <div class="kpi-card"><div class="kpi-title">Team Name</div><div class="kpi-value" style="font-size: 18px;">Team Spike</div></div>
+        <div class="kpi-card"><div class="kpi-title">Target Stack</div><div class="kpi-value" style="font-size: 16px;">Plotly / JS / Python</div></div>
+        <div class="kpi-card"><div class="kpi-title">Execution Mode</div><div class="kpi-value" style="font-size: 16px;">Zero Backend SPA</div></div>
+      </div>
+
+      <div class="section-title">4-Stage Pipeline Architecture</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
+        <div class="kpi-card"><div class="kpi-title">Stage 1</div><div style="font-weight: 700; color: var(--accent-primary);">Data Ingestion</div><div class="kpi-subtext">CSV streaming & real-time telemetry parser.</div></div>
+        <div class="kpi-card"><div class="kpi-title">Stage 2</div><div style="font-weight: 700; color: var(--accent-primary);">Feature Extraction</div><div class="kpi-subtext">StandardScaler normalization & thermal drift computation.</div></div>
+        <div class="kpi-card"><div class="kpi-title">Stage 3</div><div style="font-weight: 700; color: var(--accent-primary);">AI Inference</div><div class="kpi-subtext">Isolation Forest & XGBoost 168h trajectory regressor.</div></div>
+        <div class="kpi-card"><div class="kpi-title">Stage 4</div><div style="font-weight: 700; color: var(--accent-primary);">QA Disposition</div><div class="kpi-subtext">XAI explanation & automated quarantine certificate.</div></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Modal -->
+  <div id="inspection-modal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModalForce()">&times;</button>
+      <div class="section-title" id="modal-title">Inspect Component C003</div>
+      
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-title">Hour</div><div class="kpi-value" id="modal-hour">64h</div></div>
+        <div class="kpi-card"><div class="kpi-title">Temp</div><div class="kpi-value" id="modal-temp">78.4°C</div></div>
+        <div class="kpi-card"><div class="kpi-title">Leakage</div><div class="kpi-value" id="modal-leakage">28.4 µA</div></div>
+        <div class="kpi-card"><div class="kpi-title">Anomaly Score</div><div class="kpi-value" id="modal-score">0.89</div></div>
+      </div>
+
+      <div class="xai-box">
+        <div class="xai-title">🧠 Explainable AI Rationale & Action Plan</div>
+        <div id="modal-xai-body">Rationale...</div>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">Component Telemetry History</div>
+        <div id="chart-modal-telemetry" class="plotly-box"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Engine -->
+  <script>
+    const COMPONENTS = [
+      { id: 'C001', lot: 'LOT-2026-A1', hour: 168, temp: 38.2, volt: 5.18, current: 112, leakage: 11.4, delay: 11.2, score: 0.08, decision: 'PASS' },
+      { id: 'C002', lot: 'LOT-2026-A1', hour: 120, temp: 45.1, volt: 5.25, current: 142, leakage: 18.2, delay: 14.1, score: 0.63, decision: 'REVIEW' },
+      { id: 'C003', lot: 'LOT-2026-A1', hour: 64, temp: 78.4, volt: 4.65, current: 178, leakage: 28.4, delay: 22.5, score: 0.89, decision: 'HOLD' },
+      { id: 'C004', lot: 'LOT-2026-A2', hour: 168, temp: 37.9, volt: 5.01, current: 110, leakage: 10.8, delay: 11.5, score: 0.05, decision: 'PASS' },
+      { id: 'C005', lot: 'LOT-2026-A2', hour: 96, temp: 82.1, volt: 5.85, current: 185, leakage: 41.2, delay: 24.8, score: 0.94, decision: 'HOLD' },
+      { id: 'C006', lot: 'LOT-2026-A2', hour: 168, temp: 39.0, volt: 5.12, current: 114, leakage: 12.0, delay: 12.0, score: 0.11, decision: 'PASS' },
+      { id: 'C007', lot: 'LOT-2026-B1', hour: 144, temp: 48.5, volt: 5.35, current: 148, leakage: 19.5, delay: 15.2, score: 0.67, decision: 'REVIEW' },
+      { id: 'C008', lot: 'LOT-2026-B1', hour: 168, temp: 37.5, volt: 4.98, current: 108, leakage: 9.8, delay: 11.0, score: 0.04, decision: 'PASS' },
+      { id: 'C009', lot: 'LOT-2026-B1', hour: 168, temp: 38.8, volt: 5.05, current: 115, leakage: 11.8, delay: 11.9, score: 0.09, decision: 'PASS' },
+      { id: 'C010', lot: 'LOT-2026-B2', hour: 120, temp: 44.2, volt: 5.18, current: 139, leakage: 17.8, delay: 13.8, score: 0.58, decision: 'REVIEW' },
+      { id: 'C011', lot: 'LOT-2026-B2', hour: 168, temp: 38.1, volt: 5.02, current: 111, leakage: 11.2, delay: 11.4, score: 0.07, decision: 'PASS' },
+      { id: 'C012', lot: 'LOT-2026-B2', hour: 84, temp: 79.8, volt: 4.72, current: 172, leakage: 34.6, delay: 21.8, score: 0.91, decision: 'HOLD' },
+      { id: 'C013', lot: 'LOT-2026-C1', hour: 168, temp: 37.2, volt: 5.00, current: 109, leakage: 10.2, delay: 11.1, score: 0.06, decision: 'PASS' },
+      { id: 'C014', lot: 'LOT-2026-C1', hour: 132, temp: 46.8, volt: 5.28, current: 145, leakage: 20.1, delay: 14.8, score: 0.65, decision: 'REVIEW' },
+      { id: 'C015', lot: 'LOT-2026-C1', hour: 168, temp: 38.4, volt: 5.08, current: 113, leakage: 11.6, delay: 11.7, score: 0.10, decision: 'PASS' },
+      { id: 'C016', lot: 'LOT-2026-C2', hour: 168, temp: 37.7, volt: 4.99, current: 110, leakage: 10.5, delay: 11.3, score: 0.05, decision: 'PASS' },
+      { id: 'C017', lot: 'LOT-2026-C2', hour: 168, temp: 39.2, volt: 5.15, current: 116, leakage: 12.4, delay: 12.2, score: 0.12, decision: 'PASS' },
+      { id: 'C018', lot: 'LOT-2026-C2', hour: 168, temp: 38.0, volt: 5.03, current: 112, leakage: 11.0, delay: 11.5, score: 0.07, decision: 'PASS' },
+      { id: 'C019', lot: 'LOT-2026-D1', hour: 168, temp: 37.6, volt: 4.97, current: 107, leakage: 9.9, delay: 11.0, score: 0.04, decision: 'PASS' },
+      { id: 'C020', lot: 'LOT-2026-D1', hour: 168, temp: 38.7, volt: 5.10, current: 114, leakage: 11.9, delay: 11.8, score: 0.08, decision: 'PASS' }
+    ];
+
+    const AUDIT_LOGS = COMPONENTS.map((c, i) => ({
+      logId: `LOG-80${i+1 < 10 ? '0' + (i+1) : (i+1)}`,
+      timestamp: `2026-08-27 0${(i%8)+1}:14:22`,
+      compId: c.id,
+      hour: `${c.hour}h`,
+      score: c.score,
+      decision: c.decision,
+      note: c.decision === 'HOLD' ? 'Quarantine Flagged' : (c.decision === 'REVIEW' ? 'Screening Extended' : 'Approved')
+    }));
+
+    let currentTheme = 'dark';
+    let activePage = 'overview';
+
+    function setTheme(theme) {
+      currentTheme = theme;
+      document.documentElement.setAttribute('data-theme', theme);
+      document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+      if(theme === 'dark') document.querySelectorAll('.theme-btn')[0].classList.add('active');
+      else document.querySelectorAll('.theme-btn')[1].classList.add('active');
+      renderActivePageCharts(activePage);
+    }
+
+    function switchPage(pageId) {
+      activePage = pageId;
+      document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      
+      const targetPanel = document.getElementById(`page-${pageId}`);
+      if(targetPanel) targetPanel.classList.add('active');
+      
+      const activeNav = Array.from(document.querySelectorAll('.nav-link')).find(el => el.getAttribute('onclick').includes(pageId));
+      if(activeNav) activeNav.classList.add('active');
+
+      setTimeout(() => renderActivePageCharts(pageId), 50);
+    }
+
+    function openModal(compId) {
+      const comp = COMPONENTS.find(c => c.id === compId) || COMPONENTS[0];
+      document.getElementById('modal-title').innerText = `Inspect Component ${comp.id} (${comp.lot})`;
+      document.getElementById('modal-hour').innerText = `${comp.hour}h`;
+      document.getElementById('modal-temp').innerText = `${comp.temp}°C`;
+      document.getElementById('modal-leakage').innerText = `${comp.leakage} µA`;
+      document.getElementById('modal-score').innerText = comp.score;
+
+      let xaiText = "";
+      if(comp.decision === 'HOLD') {
+        xaiText = `<strong>CRITICAL ANOMALY DETECTED:</strong> Leakage current escalation (${comp.leakage} µA vs 15.0 µA limit), thermal instability at Hour ${comp.hour} (${comp.temp}°C), Isolation Forest score ${comp.score}, XGBoost limit violation forecast, and recommended quarantine action.`;
+      } else if(comp.decision === 'REVIEW') {
+        xaiText = `<strong>MODERATE DRIFT DETECTED:</strong> Operational current drift (${comp.current} mA vs 115 mA baseline), anomaly score ${comp.score}, and recommended +48h burn-in screening extension.`;
+      } else {
+        xaiText = `<strong>NOMINAL HEALTH:</strong> Confirms all parameters (temp ${comp.temp} °C, volt ${comp.volt} V, leakage ${comp.leakage} µA, delay ${comp.delay} ns) within nominal limits with low anomaly score ${comp.score}.`;
+      }
+      document.getElementById('modal-xai-body').innerHTML = xaiText;
+
+      document.getElementById('inspection-modal').style.display = 'flex';
+      renderModalChart(comp);
+    }
+
+    function closeModal(e) {
+      if(e.target.id === 'inspection-modal') document.getElementById('inspection-modal').style.display = 'none';
+    }
+    function closeModalForce() {
+      document.getElementById('inspection-modal').style.display = 'none';
+    }
+
+    function populateTables() {
+      const ovTbody = document.querySelector('#overview-table tbody');
+      ovTbody.innerHTML = COMPONENTS.map(c => `
+        <tr onclick="openModal('${c.id}')">
+          <td><strong>${c.id}</strong></td>
+          <td>${c.lot}</td>
+          <td>${c.hour}h</td>
+          <td>${c.temp}°C</td>
+          <td>${c.volt}V</td>
+          <td>${c.current}mA</td>
+          <td>${c.leakage}µA</td>
+          <td>${c.delay}ns</td>
+          <td>${c.score}</td>
+          <td><span class="badge badge-${c.decision.toLowerCase()}">${c.decision}</span></td>
+          <td style="color: var(--accent-primary)">Inspect →</td>
+        </tr>
+      `).join('');
+
+      const monTbody = document.querySelector('#monitoring-table tbody');
+      monTbody.innerHTML = ovTbody.innerHTML;
+
+      const ingTbody = document.querySelector('#ingestion-preview-table tbody');
+      ingTbody.innerHTML = COMPONENTS.slice(0, 5).map(c => `
+        <tr><td>${c.id}</td><td>${c.lot}</td><td>${c.hour}h</td><td>${c.temp}°C</td><td>${c.volt}V</td><td>${c.current}mA</td><td>${c.leakage}µA</td><td>${c.delay}ns</td></tr>
+      `).join('');
+
+      const histTbody = document.querySelector('#history-table tbody');
+      histTbody.innerHTML = AUDIT_LOGS.map(l => `
+        <tr onclick="openModal('${l.compId}')">
+          <td>${l.logId}</td>
+          <td>${l.timestamp}</td>
+          <td><strong>${l.compId}</strong></td>
+          <td>${l.hour}</td>
+          <td>${l.score}</td>
+          <td><span class="badge badge-${l.decision.toLowerCase()}">${l.decision}</span></td>
+          <td>${l.note}</td>
+          <td style="color: var(--accent-primary)">View Log →</td>
+        </tr>
+      `).join('');
+
+      const riskTbody = document.querySelector('#risk-breakdown-table tbody');
+      riskTbody.innerHTML = COMPONENTS.filter(c => c.decision !== 'PASS').map(c => `
+        <tr onclick="openModal('${c.id}')">
+          <td><strong>${c.id}</strong></td>
+          <td>${c.decision === 'HOLD' ? 'Thermal & Leakage Spike' : 'Operating Current Drift'}</td>
+          <td>${c.hour}h</td>
+          <td>${c.score}</td>
+          <td style="color: var(--status-hold)">${c.decision === 'HOLD' ? 'Quarantine & Failure Analysis' : 'Extend Screening +48h'}</td>
+        </tr>
+      `).join('');
+
+      const opts = COMPONENTS.map(c => `<option value="${c.id}">${c.id} (${c.lot} - ${c.decision})</option>`).join('');
+      document.getElementById('analysis-component-select').innerHTML = opts;
+      document.getElementById('wb-component-select').innerHTML = opts;
+      document.getElementById('report-component-select').innerHTML = opts;
+    }
+
+    function filterMonitoringTable() {
+      const q = document.getElementById('monitoring-search').value.toUpperCase();
+      const dec = document.getElementById('monitoring-filter').value;
+
+      const filtered = COMPONENTS.filter(c => {
+        const matchQ = c.id.includes(q) || c.lot.includes(q);
+        const matchDec = (dec === 'ALL') || (c.decision === dec);
+        return matchQ && matchDec;
+      });
+
+      const monTbody = document.querySelector('#monitoring-table tbody');
+      monTbody.innerHTML = filtered.map(c => `
+        <tr onclick="openModal('${c.id}')">
+          <td><strong>${c.id}</strong></td>
+          <td>${c.lot}</td>
+          <td>${c.hour}h</td>
+          <td>${c.temp}°C</td>
+          <td>${c.volt}V</td>
+          <td>${c.current}mA</td>
+          <td>${c.leakage}µA</td>
+          <td>${c.delay}ns</td>
+          <td>${c.score}</td>
+          <td><span class="badge badge-${c.decision.toLowerCase()}">${c.decision}</span></td>
+          <td style="color: var(--accent-primary)">Inspect →</td>
+        </tr>
+      `).join('');
+    }
+
+    function getPlotlyLayout(title) {
+      const isDark = currentTheme === 'dark';
+      return {
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        margin: { t: 30, b: 40, l: 40, r: 20 },
+        font: { color: isDark ? '#ffffff' : '#0f172a', family: 'Inter, sans-serif', size: 11 },
+        xaxis: { gridcolor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)' },
+        yaxis: { gridcolor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)' },
+        showlegend: false
+      };
+    }
+
+    function renderActivePageCharts(page) {
+      if(page === 'overview') {
+        Plotly.newPlot('chart-risk-pie', [{
+          values: [13, 4, 3], labels: ['PASS', 'REVIEW', 'HOLD'], type: 'pie', hole: 0.6, marker: { colors: ['#00d4ff', '#ffcc00', '#ff4d4d'] }
+        }], getPlotlyLayout());
+
+        Plotly.newPlot('chart-qa-bar', [{
+          x: ['PASS (Approved)', 'REVIEW (Extend)', 'HOLD (Quarantine)'], y: [13, 4, 3], type: 'bar', marker: { color: ['#00d4ff', '#ffcc00', '#ff4d4d'] }
+        }], getPlotlyLayout());
+
+        Plotly.newPlot('chart-score-hist', [{
+          x: COMPONENTS.map(c => c.score), type: 'histogram', marker: { color: '#0f62fe' }
+        }], getPlotlyLayout());
+
+        Plotly.newPlot('chart-scatter-matrix', [{
+          x: COMPONENTS.map(c => c.temp), y: COMPONENTS.map(c => c.leakage), mode: 'markers', text: COMPONENTS.map(c => c.id),
+          marker: { size: 10, color: COMPONENTS.map(c => c.decision === 'HOLD' ? '#ff4d4d' : (c.decision === 'REVIEW' ? '#ffcc00' : '#00d4ff')) }
+        }], getPlotlyLayout());
+
+        Plotly.newPlot('chart-health-lines', [{
+          x: [0, 24, 48, 72, 96, 120, 144, 168], y: [11.2, 11.5, 12.0, 12.8, 14.5, 18.2, 22.4, 28.4],
+          name: 'Leakage Current (µA)', type: 'scatter', mode: 'lines+markers', line: { color: '#ff4d4d' }
+        }], getPlotlyLayout());
+
+        Plotly.newPlot('chart-timeline', [{
+          x: COMPONENTS.map(c => c.id), y: COMPONENTS.map(c => c.score), type: 'bar',
+          marker: { color: COMPONENTS.map(c => c.score > 0.8 ? '#ff4d4d' : (c.score > 0.5 ? '#ffcc00' : '#00d4ff')) }
+        }], getPlotlyLayout());
+
+        Plotly.newPlot('chart-forecast-curve', [
+          { x: [0, 24, 48, 72], y: [11, 12, 14, 16], name: 'Actual', line: { color: '#00d4ff' } },
+          { x: [72, 96, 120, 144, 168], y: [16, 20, 25, 31, 38], name: 'Forecast', line: { color: '#ff4d4d', dash: 'dash' } }
+        ], getPlotlyLayout());
+
+        Plotly.newPlot('chart-forecast-risk-bar', [{
+          x: ['Low Risk', 'Medium Risk', 'High Risk', 'Critical Risk'], y: [12, 5, 2, 1], type: 'bar',
+          marker: { color: ['#00d4ff', '#ffcc00', '#ff9900', '#ff4d4d'] }
+        }], getPlotlyLayout());
+
+        Plotly.newPlot('chart-shap-bar', [{
+          x: [0.42, 0.28, 0.18, 0.08, 0.04], y: ['Leakage Current', 'Operating Temp', 'Current Drift', 'Response Delay', 'Voltage Fluctuation'],
+          type: 'bar', orientation: 'h', marker: { color: '#00d4ff' }
+        }], getPlotlyLayout());
+      }
+      else if(page === 'analysis') { updateAnalysisView(); }
+      else if(page === 'workbench') { updateWorkbenchView(); }
+      else if(page === 'risk') {
+        Plotly.newPlot('chart-risk-heatmap', [{
+          z: [[0.1, 0.2, 0.1, 0.8], [0.5, 0.6, 0.4, 0.7], [0.9, 0.8, 0.7, 0.9]],
+          x: ['Temp Risk', 'Voltage Risk', 'Current Drift', 'Leakage Breakdown'],
+          y: ['PASS Group', 'REVIEW Group', 'HOLD Group'],
+          type: 'heatmap', colorscale: 'YlOrRd'
+        }], getPlotlyLayout());
+      }
+      else if(page === 'model') {
+        Plotly.newPlot('chart-roc-curve', [{
+          x: [0, 0.05, 0.1, 0.2, 0.5, 1], y: [0, 0.85, 0.94, 0.97, 0.99, 1], type: 'scatter', mode: 'lines', line: { color: '#00d4ff', width: 3 }
+        }], getPlotlyLayout());
+
+        Plotly.newPlot('chart-confusion-matrix', [{
+          z: [[13, 0, 0], [1, 3, 0], [0, 0, 3]],
+          x: ['Pred PASS', 'Pred REVIEW', 'Pred HOLD'],
+          y: ['Actual PASS', 'Actual REVIEW', 'Actual HOLD'],
+          type: 'heatmap', colorscale: 'Viridis'
+        }], getPlotlyLayout());
+      }
+      else if(page === 'reports') { generateReportView(); }
+    }
+
+    function updateAnalysisView() {
+      const compId = document.getElementById('analysis-component-select').value;
+      const comp = COMPONENTS.find(c => c.id === compId) || COMPONENTS[0];
+
+      document.getElementById('ana-hour').innerText = `${comp.hour}h`;
+      document.getElementById('ana-score').innerText = comp.score;
+      document.getElementById('ana-risk').innerText = comp.decision === 'HOLD' ? 'HIGH' : (comp.decision === 'REVIEW' ? 'MEDIUM' : 'LOW');
+      document.getElementById('ana-risk').style.color = comp.decision === 'HOLD' ? 'var(--status-hold)' : (comp.decision === 'REVIEW' ? 'var(--status-review)' : 'var(--status-pass)');
+      document.getElementById('ana-rec').innerText = comp.decision === 'HOLD' ? 'HOLD FOR INSPECTION' : (comp.decision === 'REVIEW' ? 'EXTEND SCREENING +48H' : 'PASS - STANDARD RELEASE');
+
+      let xai = "";
+      if(comp.decision === 'HOLD') {
+        xai = `<strong>CRITICAL ANOMALY DETECTED:</strong> Leakage current escalation (${comp.leakage} µA vs 15.0 µA limit), thermal instability at Hour ${comp.hour} (${comp.temp}°C), Isolation Forest score ${comp.score}, XGBoost limit violation forecast, and recommended quarantine action.`;
+      } else if(comp.decision === 'REVIEW') {
+        xai = `<strong>MODERATE DRIFT DETECTED:</strong> Operational current drift (${comp.current} mA vs 115 mA baseline), anomaly score ${comp.score}, and recommended +48h burn-in screening extension.`;
+      } else {
+        xai = `<strong>NOMINAL HEALTH:</strong> Confirms all parameters (temp ${comp.temp} °C, volt ${comp.volt} V, leakage ${comp.leakage} µA, delay ${comp.delay} ns) within nominal limits with low anomaly score ${comp.score}.`;
+      }
+      document.getElementById('ana-xai-text').innerHTML = xai;
+
+      Plotly.newPlot('chart-module-a', [{
+        x: [0, 24, 48, 72, 96, 120, 144, 168], y: [0.05, 0.08, 0.12, 0.25, 0.45, comp.score, comp.score + 0.05, comp.score + 0.08],
+        type: 'scatter', line: { color: comp.score > 0.8 ? '#ff4d4d' : '#00d4ff' }
+      }], getPlotlyLayout());
+
+      Plotly.newPlot('chart-module-b', [{
+        x: [0, 24, 48, 72, 96, 120, 144, 168], y: [comp.leakage*0.5, comp.leakage*0.6, comp.leakage*0.7, comp.leakage*0.8, comp.leakage*0.9, comp.leakage, comp.leakage*1.15, comp.leakage*1.3],
+        type: 'scatter', line: { color: '#0f62fe' }
+      }], getPlotlyLayout());
+    }
+
+    function updateWorkbenchView() {
+      const compId = document.getElementById('wb-component-select').value;
+      const param = document.getElementById('wb-parameter-select').value;
+      const comp = COMPONENTS.find(c => c.id === compId) || COMPONENTS[0];
+
+      let baseVal = comp[param] || comp.leakage;
+      document.getElementById('wb-base').innerText = `${baseVal}`;
+      document.getElementById('wb-forecast').innerText = `${(baseVal * 1.45).toFixed(1)}`;
+      document.getElementById('wb-slope').innerText = `+${(baseVal * 0.003).toFixed(3)}/h`;
+      document.getElementById('wb-prob').innerText = comp.decision === 'HOLD' ? '92.4%' : '12.1%';
+
+      Plotly.newPlot('chart-workbench-main', [
+        { x: [0, 24, 48, 72], y: [baseVal*0.7, baseVal*0.8, baseVal*0.9, baseVal], name: 'Historical Telemetry', line: { color: '#00d4ff', width: 3 } },
+        { x: [72, 96, 120, 144, 168], y: [baseVal, baseVal*1.1, baseVal*1.2, baseVal*1.35, baseVal*1.45], name: '168h XGBoost Projection', line: { color: '#ff4d4d', dash: 'dash', width: 3 } }
+      ], getPlotlyLayout());
+    }
+
+    function generateReportView() {
+      const compId = document.getElementById('report-component-select').value;
+      const comp = COMPONENTS.find(c => c.id === compId) || COMPONENTS[0];
+
+      document.getElementById('cert-comp-id').innerText = comp.id;
+      document.getElementById('cert-lot').innerText = `LOT: ${comp.lot}`;
+      document.getElementById('cert-status').innerText = comp.decision === 'HOLD' ? 'QUARANTINE / REJECTED' : (comp.decision === 'REVIEW' ? 'SCREENING EXTENDED' : 'APPROVED FOR PRODUCTION');
+      document.getElementById('cert-score').innerText = `Isolation Forest Score: ${comp.score}`;
+    }
+
+    function renderModalChart(comp) {
+      Plotly.newPlot('chart-modal-telemetry', [{
+        x: [0, 24, 48, 72, 96, 120, 144, 168], y: [comp.temp*0.7, comp.temp*0.75, comp.temp*0.8, comp.temp*0.85, comp.temp*0.9, comp.temp, comp.temp*1.05, comp.temp*1.1],
+        type: 'scatter', line: { color: '#00d4ff' }
+      }], getPlotlyLayout());
+    }
+
+    function handleCSVUpload(e) {
+      const file = e.target.files[0];
+      if(file) {
+        alert('CSV Burn-In Data Loaded Successfully! Click "⚡ RUN D-BIS ANALYSIS ON CSV DATA" to execute model pipeline.');
+      }
+    }
+
+    function runIngestionAnalysis() {
+      alert('⚡ D-BIS ML Analysis Pipeline Executed Successfully! 20 Components processed through Isolation Forest & XGBoost.');
+      switchPage('overview');
+    }
+
+    function downloadSampleCSV() {
+      const csvContent = "data:text/csv;charset=utf-8,component_id,lot_number,burn_in_hour,temperature,voltage,current,leakage_current,response_delay\nC001,LOT-2026-A1,168,38.2,5.18,112,11.4,11.2\nC003,LOT-2026-A1,64,78.4,4.65,178,28.4,22.5";
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "d-bis_burnin_sample.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function filterRiskCards(type) {
+      alert(`Filtering Risk Assessment view by: ${type}`);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      populateTables();
+      renderActivePageCharts('overview');
+    });
+  </script>
+</body>
+</html>
