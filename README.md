@@ -61,7 +61,7 @@ Interactive Dashboard
         ↓
 Reliability Insights
 
-## 🧩 Core Modules
+# 🧩 Core Modules
 Module A – Dynamic Outlier Detection
 
 Module A focuses on detecting abnormal component behavior from burn-in and screening test data.
