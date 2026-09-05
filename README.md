@@ -18,7 +18,7 @@ https://tushardewangan05.github.io/D-BIS-Intelligent-Screening/
 
 ## 📌 Problem Statement
 
-### SIH26170 – AI-Driven Anomaly Detection in Component Burn-In & Screening
+### AI-Driven Anomaly Detection in Component Burn-In & Screening
 
 High-reliability electronic components are subjected to burn-in and screening tests to identify defective or potentially unreliable components before deployment.
 
