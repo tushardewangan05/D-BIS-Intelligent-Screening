@@ -60,3 +60,45 @@ Screening Classification
 Interactive Dashboard
         ↓
 Reliability Insights
+
+🧩 Core Modules
+Module A – Dynamic Outlier Detection
+
+Module A focuses on detecting abnormal component behavior from burn-in and screening test data.
+
+Key Functions
+Component test data analysis
+Parameter-wise analysis
+Statistical outlier detection
+Anomaly score generation
+Component comparison
+Identification of abnormal components
+Screening classification
+Reliability-focused analysis
+Screening Classification
+Status	Meaning
+🟢 NORMAL	Component behavior is within the expected range
+🟡 WARNING	Component shows unusual behavior and requires attention
+🔴 ANOMALY	Component shows significant abnormal behavior
+Module B – Time-Series Drift Analysis
+
+Module B focuses on monitoring parameter behavior over different stages of component testing.
+
+The system can analyze values such as:
+
+Value_0h
+   ↓
+Value_24h
+   ↓
+Value_168h
+
+The change in parameter values can be analyzed to identify abnormal drift.
+
+Key Functions
+Time-series analysis
+Parameter trend monitoring
+Drift detection
+Trend visualization
+Component-wise comparison
+Future-value analysis
+Identification of potentially degrading components
