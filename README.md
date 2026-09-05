@@ -16,13 +16,7 @@ https://tushardewangan05.github.io/D-BIS-Intelligent-Screening/
 
 ---
 
-## 🏆 Smart India Hackathon 2026
-
-**Problem Statement ID:** SIH26170
-
 **Problem Statement:** AI-Driven Anomaly Detection in Component Burn-In & Screening
-
-**Category:** Smart Automation
 
 **Domain:** Electronic Component Reliability, Artificial Intelligence & Data Analytics
 
