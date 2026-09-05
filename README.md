@@ -80,6 +80,8 @@ Status	Meaning
 🟢 NORMAL	Component behavior is within the expected range
 🟡 WARNING	Component shows unusual behavior and requires attention
 🔴 ANOMALY	Component shows significant abnormal behavior
+
+
 Module B – Time-Series Drift Analysis
 
 Module B focuses on monitoring parameter behavior over different stages of component testing.
