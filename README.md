@@ -189,7 +189,6 @@ Interactive Dashboard
         ↓
 Reliability Insights
 
----
 
 # 🏗️ System Architecture
 
